@@ -1,0 +1,307 @@
+int seuil_lumiere = 0 ;
+int LastValue=1;// a 0 l annee derniere mais essai pour qu'il tourne quand adversaire de dos
+bool depart= false ;
+
+
+
+
+
+boolean __ardublockDigitalReadPULLUP(int pinNumber);
+boolean __ardublockDigitalRead(int pinNumber);
+void avant200();
+void avantdroite();
+void arrieretoute();
+void gauchelente();
+void avantgauche();
+void droitetoute();
+void avant100();
+void arret();
+void gauchetoute();
+void droitelente();
+void avanttoute();
+void arrieredroite();
+void avant150();
+void arrieregauche();
+
+void setup(){
+  pinMode( A2 , INPUT); // inverseur mode attente ou combat
+  pinMode(6,OUTPUT); // vitesse moteur gauche
+  pinMode(5,OUTPUT); // H moteur gauche
+  pinMode(7,OUTPUT); // H moteur gauche
+
+  pinMode(2,OUTPUT);// H moteur droit
+  pinMode(3,OUTPUT); // vitesse moteur droit
+  pinMode(4,OUTPUT); // H moteur droit
+
+  pinMode( 9 , OUTPUT);//DEL Jaune signale ligne blanche
+  pinMode( 10 , OUTPUT); // DEL bleue signale adversaire vu
+
+
+  seuil_lumiere = 40 ;
+
+  depart = true ;
+
+}
+
+void loop(){
+  if (!__ardublockDigitalReadPULLUP(A2)) {  // si le robot est allumé mais pas en mode combat il teste ses capteurs
+  
+    arret();
+    if (( ( ( analogRead(A6) ) < ( seuil_lumiere ) ) && ( ( analogRead(A7) ) < ( seuil_lumiere ) ) )){
+         digitalWrite(9 , HIGH);
+    }
+    
+  if (( ( ( analogRead(A6) ) < ( seuil_lumiere ) ) && ( ( analogRead(A7) ) > ( seuil_lumiere ) ) )){
+         digitalWrite(9 , HIGH);
+  }
+  if (( ( ( analogRead(A6) ) > ( seuil_lumiere ) ) && ( ( analogRead(A7) ) < ( seuil_lumiere ) ) )){
+         digitalWrite(9 , HIGH);
+  }
+  if (__ardublockDigitalRead(A0)){
+    digitalWrite(10 , HIGH);
+  }
+  if (__ardublockDigitalRead(8)){
+    digitalWrite(10 , HIGH);
+  }
+  if (__ardublockDigitalRead(A3)){
+    digitalWrite(10 , HIGH);
+  }
+  if (__ardublockDigitalRead(A1)){
+    digitalWrite(10 , HIGH);
+  }
+  if (__ardublockDigitalRead(12)){
+    digitalWrite(10 , HIGH);
+  }
+  digitalWrite(10 , LOW);
+  digitalWrite(9 , LOW);
+  }
+  if (__ardublockDigitalReadPULLUP(A2)) {  // si robot en mode combat
+  
+    if (( ( depart ) == ( true ) )){
+     digitalWrite(9 , HIGH);
+     digitalWrite(10 , HIGH); 
+     delay( 1000 );
+      digitalWrite(9 , LOW);
+     digitalWrite(10 , LOW); 
+     delay( 1000 );
+     digitalWrite(9 , HIGH);
+     digitalWrite(10 , HIGH);
+     delay( 1000 );
+     digitalWrite(10 , LOW);
+     delay( 1000 );
+     digitalWrite(9 , LOW);
+     delay( 1000 );
+      depart = false ;
+    }
+    else {
+      if (( ( ( analogRead(A6) ) < ( seuil_lumiere ) ) && ( ( analogRead(A7) ) < ( seuil_lumiere ) ) )){
+        digitalWrite(9 , HIGH);
+        arrieretoute();
+        delay( 1000 );
+        digitalWrite(9 , LOW);
+        gauchetoute();
+        delay( 350 );
+        avant100();
+      }
+      
+      if (( ( ( analogRead(A6) ) < ( seuil_lumiere ) ) && ( ( analogRead(A7) ) > ( seuil_lumiere ) ) )){
+        digitalWrite(9 , HIGH);
+        arrieregauche();
+        delay( 250 );
+        digitalWrite(9 , LOW);
+        avantdroite();
+        delay( 250 );
+        avant100();
+      }
+      
+      if (( ( ( analogRead(A6) ) > ( seuil_lumiere ) ) && ( ( analogRead(A7) ) < ( seuil_lumiere ) ) )){
+        digitalWrite(9 , HIGH);
+        arrieredroite();
+        delay( 250 );
+        digitalWrite(9 , LOW);
+        avantgauche();
+        delay( 250 );
+        avant100();
+      }
+      
+      if (__ardublockDigitalRead(8)){ // IR Gauche
+        digitalWrite(10 , HIGH);
+        gauchelente();
+        LastValue = 2;
+      }
+      
+      if (__ardublockDigitalRead(A3)) { //IR Avant Gauche
+        digitalWrite(10 , HIGH);
+        gauchelente();//essayer avant gauche
+        LastValue = 2;
+      }
+      
+      if (__ardublockDigitalRead(A1)) {  // IR Avant Droite
+        digitalWrite(10 , HIGH);
+        droitelente(); // essayer avantdroite
+        LastValue = 1;
+      }
+      
+      if (__ardublockDigitalRead(12)) { // IR Droite  
+        digitalWrite(10 , HIGH);
+        droitelente();
+        LastValue = 1;
+      }
+      
+      if (__ardublockDigitalRead(A0)) { // IR Devant
+        digitalWrite(10 , HIGH);
+        avanttoute();
+        LastValue = 0;
+      }
+      
+      digitalWrite(10 , LOW); // a virer peut-etre avec toute les autres au-dessus
+      depart = false ; // a virer peut-etre
+      
+      if (LastValue ==0) { // adversaire vu la derniere fois devant
+        avant100();
+      }
+      if (LastValue ==1) { // adversaire vu a droite la derniere fois
+        droitelente();
+      }
+      if (LastValue ==2) { // adversaire vu a gauche la derniere fois
+        gauchelente();
+      }
+    }
+  }
+}
+
+boolean __ardublockDigitalReadPULLUP(int pinNumber){
+  pinMode(pinNumber, INPUT_PULLUP);
+  return digitalRead(pinNumber);
+}
+
+boolean __ardublockDigitalRead(int pinNumber){
+  pinMode(pinNumber, INPUT);
+  return digitalRead(pinNumber);
+}
+
+void avant200(){
+  analogWrite(6,200);
+  digitalWrite(5,HIGH);
+  digitalWrite(7,LOW);
+  analogWrite(3,200);
+  digitalWrite(2,LOW);
+  digitalWrite(4,HIGH);
+}
+
+void avantdroite(){
+  analogWrite(6,255);
+  digitalWrite(5,HIGH);
+  digitalWrite(7,LOW);
+  analogWrite(3,0);
+  digitalWrite(2,LOW);
+  digitalWrite(4,HIGH);
+}
+
+void arrieretoute(){
+  analogWrite(6,255);
+  digitalWrite(5,LOW);
+  digitalWrite(7,HIGH);
+  analogWrite(3,255);
+  digitalWrite(2,HIGH);
+  digitalWrite(4,LOW);
+}
+
+void gauchelente(){
+  analogWrite(6,60);
+  digitalWrite(5,LOW);
+  digitalWrite(7,HIGH);
+  analogWrite(3,60);
+  digitalWrite(2,LOW);
+  digitalWrite(4,HIGH);
+}
+
+void avantgauche(){
+  analogWrite(6,0);
+  digitalWrite(5,HIGH);
+  digitalWrite(7,LOW);
+  analogWrite(3,255);
+  digitalWrite(2,LOW);
+  digitalWrite(4,HIGH);
+}
+
+void droitetoute(){
+  analogWrite(6,255);
+  digitalWrite(5,HIGH);
+  digitalWrite(7,LOW);
+  analogWrite(3,255);
+  digitalWrite(2,HIGH);
+  digitalWrite(4,LOW);
+}
+
+void avant100(){
+  analogWrite(6,100);
+  digitalWrite(5,HIGH);
+  digitalWrite(7,LOW);
+  analogWrite(3,100);
+  digitalWrite(2,LOW);
+  digitalWrite(4,HIGH);
+}
+
+void arret(){
+  analogWrite(6,0);
+  digitalWrite(5,HIGH);
+  digitalWrite(7,LOW);
+  analogWrite(3,0);
+  digitalWrite(2,LOW);
+  digitalWrite(4,HIGH);
+}
+
+void gauchetoute(){
+  analogWrite(6,255);
+  digitalWrite(5,LOW);
+  digitalWrite(7,HIGH);
+  analogWrite(3,255);
+  digitalWrite(2,LOW);
+  digitalWrite(4,HIGH);
+}
+
+void droitelente(){
+  analogWrite(6,60);
+  digitalWrite(5,HIGH);
+  digitalWrite(7,LOW);
+  analogWrite(3,60);
+  digitalWrite(2,HIGH);
+  digitalWrite(4,LOW);
+}
+
+void avanttoute(){
+  analogWrite(6,255);
+  digitalWrite(5,HIGH);
+  digitalWrite(7,LOW);
+  analogWrite(3,255);
+  digitalWrite(2,LOW);
+  digitalWrite(4,HIGH);
+}
+
+void arrieredroite(){
+  analogWrite(6,255);
+  digitalWrite(5,LOW);
+  digitalWrite(7,HIGH);
+  analogWrite(3,0);
+  digitalWrite(2,HIGH);
+  digitalWrite(4,LOW);
+}
+
+void avant150(){
+  analogWrite(6,150);
+  digitalWrite(5,HIGH);
+  digitalWrite(7,LOW);
+  analogWrite(3,150);
+  digitalWrite(2,LOW);
+  digitalWrite(4,HIGH);
+}
+
+void arrieregauche(){
+  analogWrite(6,0);
+  digitalWrite(5,LOW);
+  digitalWrite(7,HIGH);
+  analogWrite(3,255);
+  digitalWrite(2,HIGH);
+  digitalWrite(4,LOW);
+}
