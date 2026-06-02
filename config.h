@@ -1,4 +1,5 @@
 #pragma once
+#include <Arduino.h>
 
 // ============================================================
 //  CONFIGURATION ROBOT MINI-SUMO — TECHNOBOT 2026
