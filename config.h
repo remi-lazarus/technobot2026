@@ -17,26 +17,26 @@
 #define MOTEUR_D_H2    4   // direction moteur droit  (H2)
 
 // ------------------------------------------------------------
-//  BROCHES CAPTEURS IR ADVERSAIRE
+//  BROCHES CAPTEURS IR ADVERSAIRE (sorties digitales)
 // ------------------------------------------------------------
-#define IR_AVANT        A0
+#define IR_AVANT        A5
 #define IR_AVANT_DROITE A1
 #define IR_AVANT_GAUCHE A3
-#define IR_GAUCHE       8
-#define IR_DROITE       12
+#define IR_GAUCHE       A4
+#define IR_DROITE       10
 
 // ------------------------------------------------------------
-//  BROCHES CAPTEURS DE SOL (détection bord blanc du Dohyo)
-//  QTR-1RC : nécessite des broches digitales (pas A6/A7)
+//  BROCHES CAPTEURS DE SOL
+//  SOL_GAUCHE : capteur analogique — A6 est analogique uniquement (Uno/Nano)
+//  SOL_DROITE : QTR-1RC, requiert une broche digitale
 // ------------------------------------------------------------
-#define SOL_GAUCHE  11
-#define SOL_DROITE  13
+#define SOL_GAUCHE  A6
+#define SOL_DROITE  11
 
 // ------------------------------------------------------------
-//  BROCHES LEDS DE DIAGNOSTIC
+//  BROCHE LED DIAGNOSTIC
 // ------------------------------------------------------------
-#define LED_BORD        9   // jaune — bord blanc détecté
-#define LED_ADVERSAIRE  10  // bleue — adversaire détecté
+#define LED_ADVERSAIRE  9
 
 // ------------------------------------------------------------
 //  BROCHE SWITCH MODE
@@ -44,10 +44,13 @@
 #define SWITCH_MODE     A2  // LOW = mode test, HIGH = mode combat
 
 // ------------------------------------------------------------
-//  SEUIL CAPTEURS DE SOL
-//  Valeur analogique en dessous de laquelle le sol est considéré blanc
+//  SEUILS CAPTEURS DE SOL
+//  Polarités opposées selon le type de capteur :
+//    analogique gauche : bord blanc si >= SEUIL_SOL_ANALOG
+//    QTR-RC droit      : bord blanc si <  SEUIL_SOL_RC
 // ------------------------------------------------------------
-#define SEUIL_SOL  300  // QTR-1RC : blanc ≈ 0-200, noir ≈ 800-2500 (à calibrer)
+#define SEUIL_SOL_ANALOG  300
+#define SEUIL_SOL_RC      300
 
 // ------------------------------------------------------------
 //  VITESSES MOTEURS (PWM 0-255)
@@ -62,8 +65,8 @@
 // ------------------------------------------------------------
 //  TIMINGS (millisecondes)
 // ------------------------------------------------------------
-#define DELAI_DEPART_MS       5000  // attente réglementaire avant départ (Art. 5)
-#define DELAI_RECUL_BORD_MS   1000  // durée recul quand bord détecté des 2 côtés
-#define DELAI_PIVOT_BORD_MS    350  // durée pivot après recul bord central
-#define DELAI_RECUL_COIN_MS    250  // durée recul quand bord détecté d'un seul côté
-#define DELAI_PIVOT_COIN_MS    250  // durée pivot après recul de coin
+#define DELAI_DEPART_MS       5000
+#define DELAI_RECUL_BORD_MS   1000
+#define DELAI_PIVOT_BORD_MS    350
+#define DELAI_RECUL_COIN_MS    250
+#define DELAI_PIVOT_COIN_MS    250
