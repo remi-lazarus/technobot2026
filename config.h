@@ -27,9 +27,10 @@
 
 // ------------------------------------------------------------
 //  BROCHES CAPTEURS DE SOL (détection bord blanc du Dohyo)
+//  QTR-1RC : nécessite des broches digitales (pas A6/A7)
 // ------------------------------------------------------------
-#define SOL_GAUCHE  A6
-#define SOL_DROITE  A7
+#define SOL_GAUCHE  11
+#define SOL_DROITE  13
 
 // ------------------------------------------------------------
 //  BROCHES LEDS DE DIAGNOSTIC
@@ -46,7 +47,7 @@
 //  SEUIL CAPTEURS DE SOL
 //  Valeur analogique en dessous de laquelle le sol est considéré blanc
 // ------------------------------------------------------------
-#define SEUIL_SOL  40
+#define SEUIL_SOL  300  // QTR-1RC : blanc ≈ 0-200, noir ≈ 800-2500 (à calibrer)
 
 // ------------------------------------------------------------
 //  VITESSES MOTEURS (PWM 0-255)

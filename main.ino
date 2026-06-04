@@ -1,4 +1,11 @@
 #include "config.h"
+#include <QTRSensors.h>
+
+// ============================================================
+//  CAPTEURS DE SOL (QTR-1RC)
+// ============================================================
+static QTRSensors qtrSol;
+static uint16_t   solValues[2];
 
 // ============================================================
 //  ÉTAT GLOBAL
@@ -59,8 +66,8 @@ void avanceCoinGauche(){ motorGauche(VITESSE_ARRET);     motorDroit(VITESSE_PLEI
 // ============================================================
 //  LECTURES CAPTEURS
 // ============================================================
-bool bordGauche()     { return analogRead(SOL_GAUCHE) < SEUIL_SOL; }
-bool bordDroite()     { return analogRead(SOL_DROITE) < SEUIL_SOL; }
+bool bordGauche()     { return solValues[0] < SEUIL_SOL; }
+bool bordDroite()     { return solValues[1] < SEUIL_SOL; }
 bool irAvant()        { return digitalRead(IR_AVANT);               }
 bool irAvantDroite()  { return digitalRead(IR_AVANT_DROITE);        }
 bool irAvantGauche()  { return digitalRead(IR_AVANT_GAUCHE);        }
@@ -84,6 +91,7 @@ void countdownDepart() {
 // ============================================================
 void modeTest() {
   arret();
+  qtrSol.read(solValues);
   digitalWrite(LED_BORD,       (bordGauche() || bordDroite()) ? HIGH : LOW);
   digitalWrite(LED_ADVERSAIRE, (irAvant() || irAvantDroite() || irAvantGauche()
                                  || irGauche() || irDroite())  ? HIGH : LOW);
@@ -93,6 +101,7 @@ void modeTest() {
 //  MODE COMBAT — gestion des bords
 // ============================================================
 void gestionBords() {
+  qtrSol.read(solValues);
   bool bg = bordGauche();
   bool bd = bordDroite();
 
@@ -175,6 +184,9 @@ void setup() {
   pinMode(MOTEUR_D_PWM, OUTPUT);
   pinMode(MOTEUR_D_H1,  OUTPUT);
   pinMode(MOTEUR_D_H2,  OUTPUT);
+
+  qtrSol.setTypeRC();
+  qtrSol.setSensorPins((const uint8_t[]){SOL_GAUCHE, SOL_DROITE}, 2);
 
   pinMode(IR_AVANT,        INPUT);
   pinMode(IR_AVANT_DROITE, INPUT);
