@@ -1,11 +1,13 @@
+#include <Arduino.h>
+
 #include "config.h"
 #include <QTRSensors.h>
 
 // ============================================================
-//  CAPTEURS DE SOL (QTR-1RC)
+//  CAPTEUR DE SOL DROIT (QTR-1RC)
 // ============================================================
 static QTRSensors qtrSol;
-static uint16_t   solValues[2];
+static uint16_t   solValues[1];
 
 // ============================================================
 //  ÉTAT GLOBAL
@@ -66,23 +68,19 @@ void avanceCoinGauche(){ motorGauche(VITESSE_ARRET);     motorDroit(VITESSE_PLEI
 // ============================================================
 //  LECTURES CAPTEURS
 // ============================================================
-bool bordGauche()     { return solValues[0] < SEUIL_SOL; }
-bool bordDroite()     { return solValues[1] < SEUIL_SOL; }
-bool irAvant()        { return digitalRead(IR_AVANT);               }
-bool irAvantDroite()  { return digitalRead(IR_AVANT_DROITE);        }
-bool irAvantGauche()  { return digitalRead(IR_AVANT_GAUCHE);        }
-bool irGauche()       { return digitalRead(IR_GAUCHE);              }
-bool irDroite()       { return digitalRead(IR_DROITE);              }
+bool bordGauche()     { return analogRead(SOL_GAUCHE) >= SEUIL_SOL_ANALOG; }
+bool bordDroite()     { return solValues[0] < SEUIL_SOL_RC;                }
+bool irAvant()        { return digitalRead(IR_AVANT);                       }
+bool irAvantDroite()  { return digitalRead(IR_AVANT_DROITE);               }
+bool irAvantGauche()  { return digitalRead(IR_AVANT_GAUCHE);               }
+bool irGauche()       { return digitalRead(IR_GAUCHE);                     }
+bool irDroite()       { return digitalRead(IR_DROITE);                     }
 
 // ============================================================
 //  SÉQUENCE DÉPART — délai réglementaire 5 s (Art. 5)
 // ============================================================
 void countdownDepart() {
-  digitalWrite(LED_BORD, HIGH); digitalWrite(LED_ADVERSAIRE, HIGH); delay(1000);
-  digitalWrite(LED_BORD, LOW);  digitalWrite(LED_ADVERSAIRE, LOW);  delay(1000);
-  digitalWrite(LED_BORD, HIGH); digitalWrite(LED_ADVERSAIRE, HIGH); delay(1000);
-                                 digitalWrite(LED_ADVERSAIRE, LOW);  delay(1000);
-  digitalWrite(LED_BORD, LOW);                                       delay(1000);
+  delay(DELAI_DEPART_MS);
   enDepart = false;
 }
 
@@ -92,9 +90,8 @@ void countdownDepart() {
 void modeTest() {
   arret();
   qtrSol.read(solValues);
-  digitalWrite(LED_BORD,       (bordGauche() || bordDroite()) ? HIGH : LOW);
   digitalWrite(LED_ADVERSAIRE, (irAvant() || irAvantDroite() || irAvantGauche()
-                                 || irGauche() || irDroite())  ? HIGH : LOW);
+                                 || irGauche() || irDroite()) ? HIGH : LOW);
 }
 
 // ============================================================
@@ -106,31 +103,23 @@ void gestionBords() {
   bool bd = bordDroite();
 
   if (bg && bd) {
-    digitalWrite(LED_BORD, HIGH);
     arriereToute();  delay(DELAI_RECUL_BORD_MS);
-    digitalWrite(LED_BORD, LOW);
     pivotGauche();   delay(DELAI_PIVOT_BORD_MS);
     avantLent();
     return;
   }
   if (bg) {
-    digitalWrite(LED_BORD, HIGH);
     reculCoinGauche(); delay(DELAI_RECUL_COIN_MS);
-    digitalWrite(LED_BORD, LOW);
     avanceCoinDroite(); delay(DELAI_PIVOT_COIN_MS);
     avantLent();
     return;
   }
   if (bd) {
-    digitalWrite(LED_BORD, HIGH);
     reculCoinDroite(); delay(DELAI_RECUL_COIN_MS);
-    digitalWrite(LED_BORD, LOW);
     avanceCoinGauche(); delay(DELAI_PIVOT_COIN_MS);
     avantLent();
     return;
   }
-
-  digitalWrite(LED_BORD, LOW);
 }
 
 // ============================================================
@@ -186,7 +175,7 @@ void setup() {
   pinMode(MOTEUR_D_H2,  OUTPUT);
 
   qtrSol.setTypeRC();
-  qtrSol.setSensorPins((const uint8_t[]){SOL_GAUCHE, SOL_DROITE}, 2);
+  qtrSol.setSensorPins((const uint8_t[]){SOL_DROITE}, 1);
 
   pinMode(IR_AVANT,        INPUT);
   pinMode(IR_AVANT_DROITE, INPUT);
@@ -194,9 +183,7 @@ void setup() {
   pinMode(IR_GAUCHE,       INPUT);
   pinMode(IR_DROITE,       INPUT);
 
-  pinMode(LED_BORD,       OUTPUT);
   pinMode(LED_ADVERSAIRE, OUTPUT);
-
   pinMode(SWITCH_MODE, INPUT_PULLUP);
 }
 
